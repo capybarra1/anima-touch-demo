@@ -57,7 +57,7 @@ h1 span { margin-inline-start: 8px; color: #aeb4c6; font-size: 14px; font-weight
   container-type: inline-size;
   isolation: isolate;
   aspect-ratio: 8 / 5;
-  overflow: hidden;
+  overflow: clip;
   border-radius: calc(32px * var(--artboard-scale, .4));
   color: #17224b;
   background: #eee;
@@ -67,6 +67,8 @@ h1 span { margin-inline-start: 8px; color: #aeb4c6; font-size: 14px; font-weight
 /* Figma's 2560 × 1600 artboard. Scale the whole coordinate space once. */
 .artboard {
   position: absolute;
+  left: 0;
+  top: 0;
   width: 2560px;
   height: 1600px;
   transform: scale(var(--artboard-scale, .4));
