@@ -5,6 +5,11 @@
   new ResizeObserver(fitArtboard).observe(stage);
   fitArtboard();
 
+  const slot = document.querySelector('.screen-slot');
+  new ResizeObserver(() => {
+    stage.style.width = Math.max(0, Math.min(slot.clientWidth, slot.clientHeight * 1.6)) + 'px';
+  }).observe(slot);
+
   const idle = document.querySelector('#idle');
   const feedback = document.querySelector('#feedback');
   const cat = document.querySelector('.cat');
@@ -26,6 +31,7 @@
   let mode = 'immediate';
   let visible = idle;
   let retry = null;
+  let playbackVersion = 0;
 
   function setPhase(next) {
     phase = next;
@@ -36,9 +42,11 @@
   }
 
   async function play(clip, onPlaying) {
+    const version = ++playbackVersion;
     try {
       await clip.play();
     } catch (error) {
+      if (version !== playbackVersion) return;
       if (error.name === 'NotAllowedError') {
         retry = () => play(clip, onPlaying);
         setPhase('blocked');
@@ -48,6 +56,7 @@
       return;
     }
 
+    if (version !== playbackVersion) return;
     if (visible !== clip) {
       visible.pause();
       visible = clip;
@@ -68,16 +77,31 @@
     return play(feedback, () => setPhase('feedback'));
   }
 
+  function resetPlayback() {
+    ++playbackVersion;
+    retry = null;
+    idle.pause();
+    feedback.pause();
+    feedback.currentTime = 0;
+    visible = idle;
+    stage.dataset.clip = 'idle';
+    setPhase('loading');
+    return startIdle();
+  }
+
   for (const button of modes) {
     button.addEventListener('click', () => {
+      stopSound();
       mode = button.dataset.mode;
       for (const choice of modes) {
         choice.setAttribute('aria-pressed', String(choice === button));
       }
+      void resetPlayback();
     });
   }
 
   cat.addEventListener('click', () => {
+    touchSound();
     if (phase !== 'idle') return;
     if (mode === 'immediate') {
       void startFeedback();
@@ -111,6 +135,85 @@
     setPhase('loading');
     void attempt();
   });
+
+  // Four short, softly decaying taps, generated locally without audio downloads.
+  let audioContext;
+  let soundNodes = [];
+  let soundVersion = 0;
+  function stopSound() {
+    ++soundVersion;
+    for (const node of soundNodes) { try { node.stop(); } catch {} }
+    soundNodes = [];
+  }
+  async function touchSound() {
+    stopSound();
+    const version = soundVersion;
+    try {
+      const Audio = window.AudioContext || window.webkitAudioContext;
+      if (!Audio) return;
+      audioContext ||= new Audio();
+      await audioContext.resume();
+      if (version !== soundVersion) return;
+      for (let i = 0; i < 4; i++) {
+        const t = audioContext.currentTime + i * .085;
+        const tone = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        tone.type = 'triangle';
+        tone.frequency.setValueAtTime(620, t);
+        tone.frequency.exponentialRampToValueAtTime(250, t + .05);
+        gain.gain.setValueAtTime(.0001, t);
+        gain.gain.exponentialRampToValueAtTime(.22, t + .005);
+        gain.gain.exponentialRampToValueAtTime(.0001, t + .065);
+        tone.connect(gain).connect(audioContext.destination);
+        tone.onended = () => { tone.disconnect(); gain.disconnect(); };
+        tone.start(t); tone.stop(t + .07);
+        soundNodes.push(tone);
+      }
+    } catch { /* Playback remains usable when audio is unavailable. */ }
+  }
+
+  const presentation = document.querySelector('#presentation');
+  const note = document.querySelector('#presentation-note');
+  let presenting = false;
+  const fullscreenElement = () => document.fullscreenElement || document.webkitFullscreenElement;
+  function presentationState(on) {
+    presenting = on;
+    document.documentElement.classList.toggle('presenting', on);
+    presentation.textContent = on ? '退出演示' : '进入演示';
+    presentation.setAttribute('aria-pressed', String(on));
+    note.textContent = on ? '演示中 · 画面已锁定' : '点击“进入演示”可固定画面并开启音效';
+  }
+  presentation.addEventListener('click', async () => {
+    if (presenting) {
+      presentationState(false);
+      stopSound();
+      if (fullscreenElement()) {
+        try { await (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch {}
+      }
+      return;
+    }
+    presentationState(true);
+    void touchSound();
+    void resetPlayback();
+    const request = document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen;
+    try {
+      if (!request) throw new Error('Fullscreen unavailable');
+      await request.call(document.documentElement);
+    } catch {
+      if (presenting) note.textContent = '画面已锁定 · 此浏览器不支持隐藏地址栏';
+    }
+  });
+  for (const name of ['fullscreenchange', 'webkitfullscreenchange']) {
+    document.addEventListener(name, () => {
+      if (!fullscreenElement()) { presentationState(false); stopSound(); }
+    });
+  }
+  // Prevent page gestures; retain the browser/system's own escape controls.
+  document.addEventListener('dblclick', e => e.preventDefault(), { passive: false });
+  for (const name of ['gesturestart', 'gesturechange', 'touchmove']) {
+    document.addEventListener(name, e => { if (presenting) e.preventDefault(); }, { passive: false });
+  }
+  document.addEventListener('wheel', e => { if (presenting) e.preventDefault(); }, { passive: false });
 
   for (const clip of [idle, feedback]) {
     // Set the property as well as the HTML attribute for programmatic playback.

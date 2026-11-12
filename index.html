@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#11141b">
   <title>Anima 触摸演示</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="player.js" defer></script>
+  <link rel="stylesheet" href="styles.css?v=3">
+  <script src="player.js?v=3" defer></script>
 </head>
 <body>
   <main class="demo">
@@ -16,8 +16,10 @@
         <button type="button" data-mode="immediate" aria-pressed="true">立即反馈</button>
         <button type="button" data-mode="after-loop" aria-pressed="false">播完本轮再反馈</button>
       </div>
+      <button class="presentation-button" id="presentation" type="button" aria-pressed="false">进入演示</button>
     </header>
 
+    <div class="screen-slot">
     <section class="stage" aria-label="猫咪触摸演示" data-clip="idle" data-phase="loading">
       <div class="artboard">
       <div class="media" aria-hidden="true">
@@ -32,8 +34,10 @@
       <button type="button" class="cat" aria-label="摸一下猫咪" aria-disabled="true"></button>
       <button type="button" class="resume" hidden>点一下开始播放</button>
     </section>
+    </div>
 
     <p class="status" role="status"><span class="status-dot" aria-hidden="true"></span><span id="status">正在加载视频…</span></p>
+    <p id="presentation-note" class="presentation-note" role="status">点击“进入演示”可固定画面并开启音效</p>
   </main>
 </body>
 </html>
