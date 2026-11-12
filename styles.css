@@ -1,0 +1,120 @@
+:root {
+  color-scheme: dark;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: #f5f6fb;
+  background: #11141b;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; min-inline-size: 280px; }
+button { font: inherit; -webkit-tap-highlight-color: transparent; }
+button:focus-visible { outline: 2px solid #a598ff; outline-offset: 4px; }
+
+.demo {
+  max-inline-size: 1260px;
+  inline-size: min(calc(100% - 40px), calc((100svh - 144px) * 1.6));
+  margin: auto;
+  padding-block: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-bottom));
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-block-end: 14px;
+}
+
+h1 { margin: 0; font-size: 21px; font-weight: 720; letter-spacing: -.035em; }
+h1 span { margin-inline-start: 8px; color: #aeb4c6; font-size: 14px; font-weight: 450; letter-spacing: 0; }
+
+.modes {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #333846;
+  border-radius: 13px;
+  background: #1d212c;
+}
+
+.modes button {
+  min-block-size: 38px;
+  padding-inline: 13px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #d6daea;
+  font-size: 13px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.modes button[aria-pressed="true"] { color: #211a46; background: #ccc2ff; font-weight: 650; }
+
+.stage {
+  position: relative;
+  container-type: inline-size;
+  isolation: isolate;
+  aspect-ratio: 8 / 5;
+  overflow: hidden;
+  border-radius: calc(32px * var(--artboard-scale, .4));
+  color: #17224b;
+  background: #eee;
+  box-shadow: 0 24px 65px #0005;
+}
+
+/* Figma's 2560 × 1600 artboard. Scale the whole coordinate space once. */
+.artboard {
+  position: absolute;
+  width: 2560px;
+  height: 1600px;
+  transform: scale(var(--artboard-scale, .4));
+  transform-origin: top left;
+  pointer-events: none;
+}
+.media {
+  position: absolute;
+  left: 1180px;
+  top: -258px;
+  width: 1600px;
+  height: 1600px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+video {
+  position: absolute;
+  left: -112.64px;
+  top: 230px;
+  width: 1824.47px;
+  height: 1370px;
+  object-fit: cover;
+  pointer-events: none;
+}
+#feedback { opacity: 0; }
+.stage[data-clip="feedback"] #idle { opacity: 0; }
+.stage[data-clip="feedback"] #feedback { opacity: 1; }
+
+/* Unmodified, original SVG exports preserve glyphs, colors and icon geometry. */
+.figma-ui { position: absolute; display: block; }
+.clock-date { left: 168px; top: 298px; }
+.music-controls { left: 168px; top: 896px; }
+.top-bar { left: 0; top: 0; }
+.dock { left: 0; top: 1416px; }
+
+.cat { position: absolute; inset: 7% 0 16.125% 46.09375%; border: 0; background: none; cursor: pointer; touch-action: manipulation; }
+.cat[aria-disabled="true"] { cursor: default; }
+.cat:focus-visible { outline-offset: -5px; border-radius: 18px; }
+.resume { position: absolute; inset: auto 5% 7% auto; padding: 11px 17px; border: 0; border-radius: 10px; background: #272244; color: #fff; cursor: pointer; }
+
+.status { display: flex; align-items: center; gap: 9px; margin: 15px 0 0; color: #d2d6e4; font-size: 13px; min-block-size: 1.5em; }
+.status-dot { inline-size: 7px; block-size: 7px; border-radius: 50%; background: #a99bf9; }
+
+@media (orientation: portrait), (max-height: 470px) {
+  .demo { inline-size: calc(100% - 32px); }
+}
+
+@media (max-width: 480px) {
+  .modes { inline-size: 100%; }
+  .modes button { flex: 1; padding-inline: 6px; }
+}
