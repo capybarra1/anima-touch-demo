@@ -136,7 +136,7 @@
     void attempt();
   });
 
-  // Four short, softly decaying taps, generated locally without audio downloads.
+  // One short, softly decaying tap, generated locally without audio downloads.
   let audioContext;
   let soundNodes = [];
   let soundVersion = 0;
@@ -154,26 +154,25 @@
       audioContext ||= new Audio();
       await audioContext.resume();
       if (version !== soundVersion) return;
-      for (let i = 0; i < 4; i++) {
-        const t = audioContext.currentTime + i * .085;
+      {
+        const t = audioContext.currentTime;
         const tone = audioContext.createOscillator();
         const gain = audioContext.createGain();
-        tone.type = 'triangle';
-        tone.frequency.setValueAtTime(620, t);
-        tone.frequency.exponentialRampToValueAtTime(250, t + .05);
+        tone.type = 'sine';
+        tone.frequency.setValueAtTime(420, t);
+        tone.frequency.exponentialRampToValueAtTime(180, t + .035);
         gain.gain.setValueAtTime(.0001, t);
-        gain.gain.exponentialRampToValueAtTime(.22, t + .005);
-        gain.gain.exponentialRampToValueAtTime(.0001, t + .065);
+        gain.gain.exponentialRampToValueAtTime(.18, t + .003);
+        gain.gain.exponentialRampToValueAtTime(.0001, t + .04);
         tone.connect(gain).connect(audioContext.destination);
         tone.onended = () => { tone.disconnect(); gain.disconnect(); };
-        tone.start(t); tone.stop(t + .07);
+        tone.start(t); tone.stop(t + .045);
         soundNodes.push(tone);
       }
     } catch { /* Playback remains usable when audio is unavailable. */ }
   }
 
   const presentation = document.querySelector('#presentation');
-  const note = document.querySelector('#presentation-note');
   let presenting = false;
   const fullscreenElement = () => document.fullscreenElement || document.webkitFullscreenElement;
   function presentationState(on) {
@@ -181,7 +180,6 @@
     document.documentElement.classList.toggle('presenting', on);
     presentation.textContent = on ? '退出演示' : '进入演示';
     presentation.setAttribute('aria-pressed', String(on));
-    note.textContent = on ? '演示中 · 画面已锁定' : '点击“进入演示”可固定画面并开启音效';
   }
   presentation.addEventListener('click', async () => {
     if (presenting) {
@@ -193,15 +191,12 @@
       return;
     }
     presentationState(true);
-    void touchSound();
     void resetPlayback();
     const request = document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen;
     try {
       if (!request) throw new Error('Fullscreen unavailable');
       await request.call(document.documentElement);
-    } catch {
-      if (presenting) note.textContent = '画面已锁定 · 此浏览器不支持隐藏地址栏';
-    }
+    } catch { /* Keep the page locked when browser fullscreen is unavailable. */ }
   });
   for (const name of ['fullscreenchange', 'webkitfullscreenchange']) {
     document.addEventListener(name, () => {
