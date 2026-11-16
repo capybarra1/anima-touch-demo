@@ -40,7 +40,7 @@
     phase = next;
     stage.dataset.phase = next;
     status.textContent = messages[next];
-    cat.setAttribute('aria-disabled', String(next !== 'idle' && !starsEnabled));
+    cat.setAttribute('aria-disabled', String(next !== 'idle'));
     resume.hidden = next !== 'blocked';
   }
 
@@ -107,19 +107,18 @@
   touchEffects.addEventListener('click', () => {
     starsEnabled = !starsEnabled;
     touchEffects.setAttribute('aria-pressed', String(starsEnabled));
-    cat.setAttribute('aria-disabled', String(phase !== 'idle' && !starsEnabled));
     if (!starsEnabled) touchStars.classList.remove('playing');
   });
 
   cat.addEventListener('click', () => {
     touchSound();
+    if (phase !== 'idle') return;
     if (starsEnabled) {
       touchStars.classList.remove('playing');
-      // Recompute styles so another tap restarts both tracks from zero.
+      // Restart the animation for the first touch of a new feedback cycle.
       void touchStars.offsetWidth;
       touchStars.classList.add('playing');
     }
-    if (phase !== 'idle') return;
     if (mode === 'immediate') {
       void startFeedback();
       return;
