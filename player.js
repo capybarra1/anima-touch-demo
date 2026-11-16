@@ -16,6 +16,9 @@
   const resume = document.querySelector('.resume');
   const status = document.querySelector('#status');
   const modes = document.querySelectorAll('[data-mode]');
+  const touchEffects = document.querySelector('#touch-effects');
+  const touchStars = document.querySelector('.touch-stars');
+  let starsEnabled = false;
 
   const messages = {
     loading: '正在加载视频…',
@@ -37,7 +40,7 @@
     phase = next;
     stage.dataset.phase = next;
     status.textContent = messages[next];
-    cat.setAttribute('aria-disabled', String(next !== 'idle'));
+    cat.setAttribute('aria-disabled', String(next !== 'idle' && !starsEnabled));
     resume.hidden = next !== 'blocked';
   }
 
@@ -79,6 +82,7 @@
 
   function resetPlayback() {
     ++playbackVersion;
+    touchStars.classList.remove('playing');
     retry = null;
     idle.pause();
     feedback.pause();
@@ -100,8 +104,21 @@
     });
   }
 
+  touchEffects.addEventListener('click', () => {
+    starsEnabled = !starsEnabled;
+    touchEffects.setAttribute('aria-pressed', String(starsEnabled));
+    cat.setAttribute('aria-disabled', String(phase !== 'idle' && !starsEnabled));
+    if (!starsEnabled) touchStars.classList.remove('playing');
+  });
+
   cat.addEventListener('click', () => {
     touchSound();
+    if (starsEnabled) {
+      touchStars.classList.remove('playing');
+      // Recompute styles so another tap restarts both tracks from zero.
+      void touchStars.offsetWidth;
+      touchStars.classList.add('playing');
+    }
     if (phase !== 'idle') return;
     if (mode === 'immediate') {
       void startFeedback();

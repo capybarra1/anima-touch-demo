@@ -97,6 +97,44 @@ video {
 .stage[data-clip="feedback"] #idle { opacity: 0; }
 .stage[data-clip="feedback"] #feedback { opacity: 1; }
 
+/* Sampled from Figma’s two-second touch timeline, in Ambi coordinates. */
+.touch-stars { position: absolute; inset: 0; pointer-events: none; }
+.touch-star { position: absolute; inset: 0 auto auto 0; display: block; opacity: 0; }
+.touch-star-right { width: calc(353px * 454.84 / 320); height: auto; }
+.touch-stars.playing .touch-star { animation: 2s linear both; }
+.touch-stars.playing .touch-star-left { animation-name: touch-star-left; }
+.touch-stars.playing .touch-star-right { animation-name: touch-star-right; }
+
+@keyframes touch-star-left {
+  0% { opacity: 0; transform: translate(-50%, -50%) translate(490px, 1160px) rotate(24deg) scale(.35); }
+  10% { opacity: .70; transform: translate(-50%, -50%) translate(426px, 1097px) rotate(10deg) scale(.77); }
+  20% { opacity: 1; transform: translate(-50%, -50%) translate(355px, 1020px); }
+  40% { opacity: 1; transform: translate(-50%, -50%) translate(312px, 965px) rotate(-14deg) scale(1.05); }
+  70% { opacity: 1; }
+  76% { transform: translate(-50%, -50%) translate(294px, 948px) rotate(-21deg) scale(1.05); }
+  90%, 100% { opacity: 0; transform: translate(-50%, -50%) translate(283px, 928px) rotate(-24deg) scale(1.05); }
+}
+
+@keyframes touch-star-right {
+  0%, 4% { opacity: 0; transform: translate(-50%, -50%) translate(1020px, 840px) rotate(-8deg) scale(.3); }
+  10% { opacity: .42; transform: translate(-50%, -50%) translate(1101px, 770px) rotate(5deg) scale(.55); }
+  20% { opacity: .93; transform: translate(-50%, -50%) translate(1209px, 658px) rotate(18deg) scale(.91); }
+  40% { opacity: 1; transform: translate(-50%, -50%) translate(1275px, 603px) rotate(35deg) scale(1.05); }
+  70% { opacity: 1; }
+  76% { opacity: .66; transform: translate(-50%, -50%) translate(1300px, 578px) rotate(42deg) scale(1.05); }
+  90%, 100% { opacity: 0; transform: translate(-50%, -50%) translate(1315px, 555px) rotate(46deg) scale(1.05); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .touch-stars.playing .touch-star { animation-name: touch-star-fade; }
+  .touch-star-left { transform: translate(-50%, -50%) translate(355px, 1020px); }
+  .touch-star-right { transform: translate(-50%, -50%) translate(1209px, 658px) rotate(18deg) scale(.91); }
+  @keyframes touch-star-fade {
+    0%, 90%, 100% { opacity: 0; }
+    20%, 70% { opacity: 1; }
+  }
+}
+
 /* Unmodified, original SVG exports preserve glyphs, colors and icon geometry. */
 .figma-ui { position: absolute; display: block; }
 .clock-date { left: 168px; top: 298px; }

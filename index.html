@@ -5,16 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#11141b">
   <title>Anima 触摸演示</title>
-  <link rel="stylesheet" href="styles.css?v=4">
-  <script src="player.js?v=4" defer></script>
+  <link rel="stylesheet" href="styles.css?v=5">
+  <script src="player.js?v=5" defer></script>
 </head>
 <body>
   <main class="demo">
     <header class="toolbar">
       <h1>Anima <span>触摸演示</span></h1>
-      <div class="modes" role="group" aria-label="反馈时机">
+      <div class="modes" role="group" aria-label="触摸反馈选项">
         <button type="button" data-mode="immediate" aria-pressed="true">立即反馈</button>
         <button type="button" data-mode="after-loop" aria-pressed="false">播完本轮再反馈</button>
+        <button type="button" id="touch-effects" aria-pressed="false">星星特效</button>
       </div>
       <button class="presentation-button" id="presentation" type="button" aria-pressed="false">进入演示</button>
     </header>
@@ -25,6 +26,10 @@
       <div class="media" aria-hidden="true">
         <video id="idle" src="media/idle.mp4" poster="media/idle.jpg" muted playsinline preload="auto" loop disablepictureinpicture></video>
         <video id="feedback" src="media/feedback.mp4" muted playsinline preload="auto" disablepictureinpicture></video>
+        <div class="touch-stars">
+          <img class="touch-star touch-star-left" src="assets/touch-star.png" width="353" height="353" alt="">
+          <img class="touch-star touch-star-right" src="assets/touch-star.png" width="353" height="353" alt="">
+        </div>
       </div>
       <img class="figma-ui clock-date" src="assets/clock-date.svg" width="936" height="488" alt="22:01，5月8日 星期四">
       <img class="figma-ui music-controls" src="assets/music-controls.svg" width="936" height="296" alt="蓝牙、播放、下一首和星光图标">
