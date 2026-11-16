@@ -35,6 +35,7 @@
   let visible = idle;
   let retry = null;
   let playbackVersion = 0;
+  const immediateFeedbackStart = 0.3;
 
   function setPhase(next) {
     phase = next;
@@ -68,15 +69,23 @@
     onPlaying();
   }
 
+  function cueFeedback() {
+    const startTime = mode === 'immediate' ? immediateFeedbackStart : 0;
+    if (feedback.currentTime !== startTime) feedback.currentTime = startTime;
+  }
+
   function startIdle() {
     idle.loop = true;
     idle.currentTime = 0;
-    return play(idle, () => setPhase('idle'));
+    return play(idle, () => {
+      cueFeedback();
+      setPhase('idle');
+    });
   }
 
   function startFeedback() {
     setPhase('feedback');
-    feedback.currentTime = 0;
+    cueFeedback();
     return play(feedback, () => setPhase('feedback'));
   }
 
@@ -86,7 +95,6 @@
     retry = null;
     idle.pause();
     feedback.pause();
-    feedback.currentTime = 0;
     visible = idle;
     stage.dataset.clip = 'idle';
     setPhase('loading');
